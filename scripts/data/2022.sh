@@ -1,0 +1,11 @@
+bash scripts/data/january_2022.sh
+bash scripts/data/febuary_2022.sh
+bash scripts/data/march_2022.sh
+bash scripts/data/april_2022.sh
+bash scripts/data/may_2022.sh
+bash scripts/data/june_2022.sh
+bash scripts/data/july_2022.sh
+bash scripts/data/august_2022.sh
+bash scripts/data/september_2022.sh
+bash scripts/data/october_2022.sh
+bash scripts/data/november_2022.sh
