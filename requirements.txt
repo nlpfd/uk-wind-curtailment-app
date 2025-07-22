@@ -6,7 +6,6 @@ pandas==1.5.3
 plotly
 powerdict
 pyarrow
-psycopg2
 pydantic
 PyYAML
 QtPy
@@ -15,6 +14,10 @@ SQLAlchemy==1.4.37
 xlrd
 altair==4.2.2
 openpyxl
+psycopg2-binary
+python-dotenv
+
+
 
 
 # streamlit - frozen to allow tracking hack (see static dir)
