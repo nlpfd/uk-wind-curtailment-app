@@ -3,35 +3,40 @@ import os
 from pathlib import Path
 
 import pandas as pd
-from sqlalchemy import create_engine
+import streamlit as st
+from sqlalchemy import create_engine, text
 from sqlalchemy.exc import IntegrityError
 
 from lib import constants
 
 logger = logging.getLogger(__name__)
 
-# Database connection setup using environment variables
-DB_USERNAME = os.getenv("DB_USERNAME")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_IP = os.getenv("DB_IP")
-DB_NAME = os.getenv("DB_NAME")
-DB_PORT = os.getenv("DB_PORT", "5432")
+@st.experimental_singleton
+def get_engine():
+    DB_USERNAME = os.getenv("DB_USERNAME")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_IP = os.getenv("DB_IP")
+    DB_NAME = os.getenv("DB_NAME")
+    DB_PORT = os.getenv("DB_PORT", "5432")
 
-# Use SSL on Render, no SSL locally
-if DB_IP in ("127.0.0.1", "localhost"):
-    ssl_mode = ""
-else:
-    ssl_mode = "?sslmode=require&options=-csearch_path%3Dpublic"
+    if DB_IP in ("127.0.0.1", "localhost"):
+        ssl_mode = ""
+    else:
+        ssl_mode = "?sslmode=require&options=-csearch_path%3Dpublic"
 
-DB_URL = (
-    f"postgresql+psycopg2://{DB_USERNAME}:{DB_PASSWORD}@{DB_IP}:{DB_PORT}/{DB_NAME}{ssl_mode}"
-)
+    DB_URL = (
+        f"postgresql+psycopg2://{DB_USERNAME}:{DB_PASSWORD}@{DB_IP}:{DB_PORT}/{DB_NAME}{ssl_mode}"
+    )
 
-engine = create_engine(
-    DB_URL,
-    pool_pre_ping=True,
-    pool_recycle=300,
-)
+    engine = create_engine(
+        DB_URL,
+        pool_pre_ping=True,
+        pool_recycle=300,
+    )
+    return engine
+
+# Use the singleton engine instance everywhere
+engine = get_engine()
 
 def get_db_connection():
     """

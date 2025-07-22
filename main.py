@@ -9,7 +9,6 @@ print("DB_PASSWORD:", os.getenv("DB_PASSWORD"))
 print("DB_NAME:", os.getenv("DB_NAME"))
 print("HOST:", os.getenv("HOST"))
 
-
 import datetime
 
 import pandas as pd
@@ -257,3 +256,21 @@ st.markdown("<div style='text-align: center; margin-top: 50px; color: rgba(40,80
             "<p>🛠 Made by <a href='https://www.linkedin.com/in/peter-dudfield-b379b7a6/'>Peter Dudfield </a>"
             "and <a href='https://www.linkedin.com/in/archy-de-berker/'>Archy de Berker</a> </p>"
             "<p> Please <a href='mailto:archy.deberker@gmail.com,peter@openclimatefix.org'> get in touch </a> with questions or feedback. </p></div>", unsafe_allow_html=True)
+
+# --- DB connection test button for debugging ---
+import psycopg2
+
+if st.button("Test DB Connection"):
+    try:
+        conn = psycopg2.connect(
+            dbname=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USERNAME"),
+            password=os.getenv("DB_PASSWORD"),
+            host=os.getenv("DB_IP"),
+            port=os.getenv("DB_PORT", "5432"),
+            sslmode="require"
+        )
+        st.success("✅ DB connection successful!")
+        conn.close()
+    except Exception as e:
+        st.error(f"❌ DB connection failed: {e}")
