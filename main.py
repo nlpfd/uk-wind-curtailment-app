@@ -1,6 +1,9 @@
 from dotenv import load_dotenv
-import os
+import streamlit as st
 
+st.set_page_config(page_title="UK Wind Curtailment Monitor", page_icon="./static/favicon.png")
+
+import os
 load_dotenv(".env.local")
 
 print("DB_IP:", os.getenv("DB_IP"))
@@ -10,9 +13,7 @@ print("DB_NAME:", os.getenv("DB_NAME"))
 print("HOST:", os.getenv("HOST"))
 
 import datetime
-
 import pandas as pd
-import streamlit as st
 from streamlit_extras.metric_cards import style_metric_cards
 
 from lib.constants import (
@@ -31,8 +32,6 @@ from lib.plot import make_time_series_plot, limit_plot_size
 
 MIN_DATE = pd.to_datetime("2021-01-01")
 MAX_DATE = pd.to_datetime("2030-01-01")
-
-st.set_page_config(page_title="UK Wind Curtailment Monitor", page_icon="./static/favicon.png")
 
 
 @st.cache
@@ -97,18 +96,15 @@ def write_summary_box(df: pd.DataFrame, energy_units="GWh", price_units="M"):
 
 
 def write_scottish_summary(df: pd.DataFrame, selected_date: datetime.date):
-    """
-    Show summary metrics for Scottish Wind Curtailment based on BOA volumes data
-    """
     day_df = df[df["local_datetime"].dt.date == selected_date]
 
-    curtailed_mwh = day_df["BOA_Volume"].abs().sum() * 0.5  # MW * 0.5 hour = MWh
+    curtailed_mwh = day_df["BOA_Volume"].abs().sum() * 0.5
     curtailed_gwh = curtailed_mwh / 1000
 
-    price_per_mwh = 50  # example price, adjust if you have real data
+    price_per_mwh = 50
     estimated_cost_m = curtailed_mwh * price_per_mwh / 1_000_000
 
-    co2_per_mwh = 200  # example kg CO2 per MWh curtailed
+    co2_per_mwh = 200
     estimated_co2_mt = curtailed_mwh * co2_per_mwh / 1_000_000
 
     col1, col2, col3 = st.columns(3)
