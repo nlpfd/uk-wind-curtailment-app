@@ -17,6 +17,7 @@ def get_db_connection():
     This version includes:
     - The database name in the connection URL (important!)
     - Forces the search_path to 'public' schema so unqualified table names work.
+    - Enforces SSL connection with sslmode=require for Render PostgreSQL.
     """
 
     if cloud_sql_instance := os.environ.get("CLOUD_SQL_INSTANCE"):
@@ -27,11 +28,11 @@ def get_db_connection():
             f"?host={constants.HOST}:{cloud_sql_instance}"
         )
     else:
-        # Local connection: add DB name and force search_path=public
+        # Local or Render connection: add DB name, force search_path=public, and require SSL
         address = (
             f"postgresql+psycopg2://{constants.DB_USERNAME}:"
             f"{constants.DB_PASSWORD}@{constants.DB_IP}:5432/"
-            f"{constants.DB_NAME}?options=-csearch_path%3Dpublic"
+            f"{constants.DB_NAME}?sslmode=require&options=-csearch_path%3Dpublic"
         )
     print("Connecting to DB with URL:", address)  # Optional debug print
     return create_engine(url=address)
@@ -145,4 +146,3 @@ def prepare_scottish_data_for_plot(df: pd.DataFrame) -> pd.DataFrame:
     df["turnup_cost_gbp"] = 0
 
     return df
-
