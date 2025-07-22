@@ -10,31 +10,37 @@ from lib import constants
 
 logger = logging.getLogger(__name__)
 
-# Build the DB connection URL with sslmode=require and search_path=public
+# Database connection setup using environment variables
+DB_USERNAME = os.getenv("DB_USERNAME")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_IP = os.getenv("DB_IP")
+DB_NAME = os.getenv("DB_NAME")
+DB_PORT = os.getenv("DB_PORT", "5432")
+
+# Use SSL on Render, no SSL locally
+if DB_IP in ("127.0.0.1", "localhost"):
+    ssl_mode = ""
+else:
+    ssl_mode = "?sslmode=require&options=-csearch_path%3Dpublic"
+
 DB_URL = (
-    f"postgresql+psycopg2://{constants.DB_USERNAME}:"
-    f"{constants.DB_PASSWORD}@{constants.DB_IP}:5432/"
-    f"{constants.DB_NAME}?sslmode=require&options=-csearch_path%3Dpublic"
+    f"postgresql+psycopg2://{DB_USERNAME}:{DB_PASSWORD}@{DB_IP}:{DB_PORT}/{DB_NAME}{ssl_mode}"
 )
 
-# Create the engine once with connection pool options to prevent stale connection issues
 engine = create_engine(
     DB_URL,
     pool_pre_ping=True,
-    pool_recycle=300,  # recycle connections every 5 minutes
+    pool_recycle=300,
 )
-
 
 def get_db_connection():
     """
     Return the persistent SQLAlchemy engine with pool management.
-    Do NOT create a new engine here each time.
     """
     return engine
 
 
 def write_curtailment_data(df: pd.DataFrame):
-
     if len(df) == 0:
         logger.debug("There was no data to write to the database")
         return
@@ -72,7 +78,6 @@ def write_sbp_data(df: pd.DataFrame):
 def read_data(start_time="2022-01-01", end_time="2023-01-01"):
     engine = get_db_connection()
 
-    # Use schema-qualified table names in your SQL query file
     with open(constants.SQL_DIR / "read_data.sql") as f:
         query = f.read()
 
