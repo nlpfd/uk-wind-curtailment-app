@@ -35,15 +35,10 @@ def get_engine():
     )
     return engine
 
-# Use the singleton engine instance everywhere
 engine = get_engine()
 
 def get_db_connection():
-    """
-    Return the persistent SQLAlchemy engine with pool management.
-    """
     return engine
-
 
 def write_curtailment_data(df: pd.DataFrame):
     if len(df) == 0:
@@ -80,7 +75,7 @@ def write_sbp_data(df: pd.DataFrame):
             )
 
 
-def read_data(start_time="2022-01-01", end_time="2023-01-01"):
+def read_data(start_time="2022-01-01", end_time="2030-01-01"):
     engine = get_db_connection()
 
     with open(constants.SQL_DIR / "read_data.sql") as f:
